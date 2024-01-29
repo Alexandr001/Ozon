@@ -5,23 +5,23 @@ class DataCompression
     public static void Main()
     {
         var numberOfSet = int.Parse(Console.ReadLine()!);
-        var arrayResults = new int[numberOfSet][];
+        var arrayResults = new List<List<int>>(numberOfSet);
         for (var i = 0; i < numberOfSet; i++)
         {
             _ = int.Parse(Console.ReadLine()!);
             var array = Console.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
 
-            arrayResults[i] = Execute(array);
+            arrayResults.Add(Execute(array));
         }
 
         foreach (var result in arrayResults)
         {
-            Console.WriteLine(result.Length);
+            Console.WriteLine(result.Count);
             Console.WriteLine(string.Join(' ', result));
         }
     }
 
-    static int[] Execute(int[] arr)
+    static List<int> Execute(int[] arr)
     {
         var results = new List<int>();
         for (var i = 0; i < arr.Length; i++)
@@ -59,6 +59,6 @@ class DataCompression
                 break;
             }
         }
-        return results.ToArray();
+        return results;
     }
 }
