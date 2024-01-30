@@ -11,6 +11,7 @@ public class Terminal
             var str = Console.ReadLine()!;
             arrayResults.Add(Execute(str));
         }
+
         foreach (var result in arrayResults)
         {
             Console.WriteLine(result);
@@ -20,50 +21,132 @@ public class Terminal
 
     static string Execute(string str)
     {
-        var result = new List<string> {};
-        var j = 0;
-        for (var i = 0; i < str.Length; i++)
+        Writer writer = new();
+        foreach (var c in str)
         {
-            var s = str[i];
-            switch (s)
+            switch (c)
             {
                 case 'L':
-                    if (i != 0)
-                    {
-                        i--;
-                    }
+                    writer.GoLeft();
                     break;
                 case 'R':
-                    if (i != 0)
-                    {
-                        i++;
-                    }
+                    writer.GoRight();
                     break;
                 case 'U':
-                    if (result.Count > 1)
-                    {
-                        i--;
-                    }
+                    writer.GoUp();
                     break;
                 case 'D':
-                    if (result.Count > 1)
-                    {
-                        i++;
-                    }
+                    writer.GoDown();
                     break;
                 case 'B':
+                    writer.GoBegin();
                     break;
                 case 'E':
+                    writer.GoEnd();
                     break;
                 case 'N':
-                    
+                    writer.NewLine();
                     break;
                 default:
-                    result.Add(s);
+                    writer.Write(c);
                     break;
             }
         }
 
-        return "";
+        return string.Join('\n', writer.Result);
+    }
+
+    struct Writer
+    {
+        private List<int> _maxX = new(){0};
+        private int _maxY = 0;
+
+        private int _x = 0;
+        private int _y = 0;
+
+        public Writer()
+        {
+        }
+
+        public List<string> Result { get; } = new() { "" };
+
+        public void GoLeft()
+        {
+            if (_x > 0)
+            {
+                _x--;
+            }
+        }
+
+        public void GoRight()
+        {
+            if (_x < _maxX[_y])
+            {
+                _x++;
+            }
+        }
+
+        public void GoUp()
+        {
+            if (_y > 0)
+            {
+                _y--;
+            }
+
+            if (_x > _maxX[_y])
+            {
+                _x = _maxX[_y];
+            }
+        }
+
+        public void GoDown()
+        {
+            if (_y < _maxY)
+            {
+                _y++;
+            }
+            if (_x > _maxX[_y])
+            {
+                _x = _maxX[_y];
+            }
+        }
+
+        public void GoBegin()
+        {
+            _x = 0;
+        }
+
+        public void GoEnd()
+        {
+            _x = _maxX[_y];
+        }
+
+        public void NewLine()
+        {
+            Result.Insert(_y + 1, Result[_y][_x..]);
+            _maxX.Insert(_y + 1, Result[_y][_x..].Length);
+            
+            Result[_y] = Result[_y][.._x];
+            _maxX[_y] = Result[_y].Length;
+            _y++;
+            
+            _maxX[_y] = Result[_y].Length;
+            _maxY++;
+            _x = 0;
+        }
+
+        public void Write(char c)
+        {
+            if (_x == _maxX[_y])
+            {
+                Result[_y] += c;
+            }
+            else
+            {
+                Result[_y] = Result[_y].Insert(_x, c.ToString());
+            }
+            _maxX[_y]++;
+            _x++;
+        }
     }
 }

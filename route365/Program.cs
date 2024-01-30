@@ -1,62 +1,144 @@
-﻿Console.WriteLine("hello world");
+﻿{
+        var numberOfSet = int.Parse(Console.ReadLine()!);
+        var arrayResults = new List<string>();
+        for (var i = 0; i < numberOfSet; i++)
+        {
+            var str = Console.ReadLine()!;
+            arrayResults.Add(Execute(str));
+        }
 
-
-var numberOfSet = int.Parse(Console.ReadLine()!);
-var arrayResults = new int[numberOfSet][];
-for (var i = 0; i < numberOfSet; i++)
-{
-    _ = int.Parse(Console.ReadLine()!);
-    var array = Console.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
-
-    arrayResults[i] = Execute(array);
+        foreach (var result in arrayResults)
+        {
+            Console.WriteLine(result);
+            Console.WriteLine('-');
+        }
 }
 
-foreach (var result in arrayResults)
-{
-    Console.WriteLine(result.Length);
-    Console.WriteLine(string.Join(' ', result));
-}
-
-
-static int[] Execute(int[] arr)
-{
-    var results = new List<int>();
-    for (var i = 0; i < arr.Length; i++)
+static string Execute(string str)
     {
-        bool? isIncrease = null;
-        results.Add(arr[i]);
-
-        if (arr.ElementAtOrDefault(i) - arr.ElementAtOrDefault(i + 1) == 1)
+        Writer writer = new();
+        foreach (var c in str)
         {
-            isIncrease = false;
-        }
-        else if (arr.ElementAtOrDefault(i) - arr.ElementAtOrDefault(i + 1) == -1)
-        {
-            isIncrease = true;
-        }
-        else
-        {
-            results.Add(0);
-            continue;
-        }
-
-        for (var j = i + 1; j <= arr.Length; j++)
-        {
-            if (arr.ElementAtOrDefault(j - 1) - arr.ElementAtOrDefault(j) == -1 && isIncrease == true)
+            switch (c)
             {
-                continue;
+                case 'L':
+                    writer.GoLeft();
+                    break;
+                case 'R':
+                    writer.GoRight();
+                    break;
+                case 'U':
+                    writer.GoUp();
+                    break;
+                case 'D':
+                    writer.GoDown();
+                    break;
+                case 'B':
+                    writer.GoBegin();
+                    break;
+                case 'E':
+                    writer.GoEnd();
+                    break;
+                case 'N':
+                    writer.NewLine();
+                    break;
+                default:
+                    writer.Write(c);
+                    break;
             }
-
-            if (arr.ElementAtOrDefault(j - 1) - arr.ElementAtOrDefault(j) == 1 && isIncrease == false)
-            {
-                continue;
-            }
-
-            results.Add(arr[j - 1] - arr[i]);
-            i = j - 1;
-            break;
         }
+
+        return string.Join('\n', writer.Result);
     }
 
-    return results.ToArray();
-}
+    struct Writer
+    {
+        private List<int> _maxX = new(){0};
+        private int _maxY = 0;
+
+        private int _x = 0;
+        private int _y = 0;
+
+        public Writer()
+        {
+        }
+
+        public List<string> Result { get; } = new() { "" };
+
+        public void GoLeft()
+        {
+            if (_x > 0)
+            {
+                _x--;
+            }
+        }
+
+        public void GoRight()
+        {
+            if (_x < _maxX[_y])
+            {
+                _x++;
+            }
+        }
+
+        public void GoUp()
+        {
+            if (_y > 0)
+            {
+                _y--;
+            }
+
+            if (_x > _maxX[_y])
+            {
+                _x = _maxX[_y];
+            }
+        }
+
+        public void GoDown()
+        {
+            if (_y < _maxY)
+            {
+                _y++;
+            }
+            if (_x > _maxX[_y])
+            {
+                _x = _maxX[_y];
+            }
+        }
+
+        public void GoBegin()
+        {
+            _x = 0;
+        }
+
+        public void GoEnd()
+        {
+            _x = _maxX[_y];
+        }
+
+        public void NewLine()
+        {
+            Result.Insert(_y + 1, Result[_y][_x..]);
+            _maxX.Insert(_y + 1, Result[_y][_x..].Length);
+            
+            Result[_y] = Result[_y][.._x];
+            _y++;
+            
+            _maxX[_y] = Result[_y].Length;
+            _x = 0;
+        }
+
+        public void Write(char c)
+        {
+            if (_x == _maxX[_y])
+            {
+                Result[_y] += c;
+            }
+            else
+            {
+                Result[_y] = Result[_y].Insert(_x, c.ToString());
+            }
+            _maxX[_y]++;
+            _x++;
+        }
+    }
