@@ -1,144 +1,109 @@
 ﻿{
-        var numberOfSet = int.Parse(Console.ReadLine()!);
-        var arrayResults = new List<string>();
-        for (var i = 0; i < numberOfSet; i++)
-        {
-            var str = Console.ReadLine()!;
-            arrayResults.Add(Execute(str));
-        }
-
-        foreach (var result in arrayResults)
-        {
-            Console.WriteLine(result);
-            Console.WriteLine('-');
-        }
-}
-
-static string Execute(string str)
+    var numberOfSet = int.Parse(Console.ReadLine()!);
+    var results = new List<string>(numberOfSet);
+    for (var i = 0; i < numberOfSet; i++)
     {
-        Writer writer = new();
-        foreach (var c in str)
-        {
-            switch (c)
-            {
-                case 'L':
-                    writer.GoLeft();
-                    break;
-                case 'R':
-                    writer.GoRight();
-                    break;
-                case 'U':
-                    writer.GoUp();
-                    break;
-                case 'D':
-                    writer.GoDown();
-                    break;
-                case 'B':
-                    writer.GoBegin();
-                    break;
-                case 'E':
-                    writer.GoEnd();
-                    break;
-                case 'N':
-                    writer.NewLine();
-                    break;
-                default:
-                    writer.Write(c);
-                    break;
-            }
-        }
+        var countPage = int.Parse(Console.ReadLine()!);
+        var str = Console.ReadLine()!;
 
-        return string.Join('\n', writer.Result);
+        results.Add(Execute(str, countPage));
     }
 
-    struct Writer
+    Console.WriteLine(string.Join('\n', results));
+}
+
+static string Execute(string str, int countPage)
+{
+    str += ',';
+    var result = new List<string>();
+    var printedPages = NewMethod(str);
+
+    var value = 0;
+    string? buf = null;
+    for (var i = 1; i <= countPage; i++)
     {
-        private List<int> _maxX = new(){0};
-        private int _maxY = 0;
-
-        private int _x = 0;
-        private int _y = 0;
-
-        public Writer()
+        if (printedPages.Contains(i))
         {
-        }
-
-        public List<string> Result { get; } = new() { "" };
-
-        public void GoLeft()
-        {
-            if (_x > 0)
+            if (buf is not null)
             {
-                _x--;
-            }
-        }
+                if (buf != value.ToString())
+                {
+                    buf += '-' + value.ToString();
+                }
 
-        public void GoRight()
-        {
-            if (_x < _maxX[_y])
-            {
-                _x++;
-            }
-        }
-
-        public void GoUp()
-        {
-            if (_y > 0)
-            {
-                _y--;
+                result.Add(buf);
+                buf = null;
             }
 
-            if (_x > _maxX[_y])
+            continue;
+        }
+
+        if (i == countPage)
+        {
+            if (buf is null)
             {
-                _x = _maxX[_y];
-            }
-        }
-
-        public void GoDown()
-        {
-            if (_y < _maxY)
-            {
-                _y++;
-            }
-            if (_x > _maxX[_y])
-            {
-                _x = _maxX[_y];
-            }
-        }
-
-        public void GoBegin()
-        {
-            _x = 0;
-        }
-
-        public void GoEnd()
-        {
-            _x = _maxX[_y];
-        }
-
-        public void NewLine()
-        {
-            Result.Insert(_y + 1, Result[_y][_x..]);
-            _maxX.Insert(_y + 1, Result[_y][_x..].Length);
-            
-            Result[_y] = Result[_y][.._x];
-            _y++;
-            
-            _maxX[_y] = Result[_y].Length;
-            _x = 0;
-        }
-
-        public void Write(char c)
-        {
-            if (_x == _maxX[_y])
-            {
-                Result[_y] += c;
+                buf = i.ToString();
             }
             else
             {
-                Result[_y] = Result[_y].Insert(_x, c.ToString());
+                buf += '-' + i.ToString();
             }
-            _maxX[_y]++;
-            _x++;
+
+            result.Add(buf);
+        }
+
+        if (i - value == 1 || value == 0)
+        {
+            buf ??= i.ToString();
+
+            value = i;
+            continue;
+        }
+
+        value = i;
+        buf = i.ToString();
+    }
+
+    return string.Join(',', result);
+}
+
+static List<int> NewMethod(string str)
+{
+    var list = new List<int>();
+    var buf = "";
+    var flag = false;
+
+    foreach (var c in str)
+    {
+        if (char.IsNumber(c))
+        {
+            buf += c;
+            continue;
+        }
+
+        list.Add(int.Parse(buf));
+        buf = "";
+
+        if (c == ',')
+        {
+            if (flag)
+            {
+                var maxVal = list[^1];
+                var minVal = list[^2];
+                for (var j = minVal + 1; j < maxVal; j++)
+                {
+                    list.Insert(list.Count - 1, j);
+                }
+            }
+
+            flag = false;
+        }
+
+        if (c == '-')
+        {
+            flag = true;
         }
     }
+
+    return list;
+}
