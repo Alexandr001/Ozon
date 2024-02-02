@@ -21,7 +21,7 @@ public class DocumentPrinting
     {
         str += ',';
         var result = new List<string>();
-        var printedPages = NewMethod(str);
+        var printedPages = GetPrintedPages(str);
 
         var value = 0;
         string? buf = null;
@@ -61,6 +61,7 @@ public class DocumentPrinting
                 value = i;
                 continue;
             }
+
             value = i;
             buf = i.ToString();
         }
@@ -68,7 +69,7 @@ public class DocumentPrinting
         return string.Join(',', result);
     }
 
-    static List<int> NewMethod(string str)
+    static List<int> GetPrintedPages(string str)
     {
         var list = new List<int>();
         var buf = "";
@@ -108,8 +109,3 @@ public class DocumentPrinting
         return list;
     }
 }
-
-/*
- Если "-" то берем два числа вокруг и заполняем по очереди уже готовые странички
- Если число, то смотрим следующий символ, если запятая то добавляем этот символ в результат, если тире то смотрим ещё симол и добавляем список в результат
- */
